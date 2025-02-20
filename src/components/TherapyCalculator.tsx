@@ -300,12 +300,12 @@ const TherapyCalculator = () => {
                                     </div>
                                     <div className="grid gap-2">
                                         <Label>Payer</Label>
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-col sm:flex-row gap-2">
                                             <Select
                                                 value={formData.payer}
                                                 onValueChange={(value) => setFormData({ ...formData, payer: value })}
                                             >
-                                                <SelectTrigger className="flex-1">
+                                                <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Select payer type" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -319,6 +319,7 @@ const TherapyCalculator = () => {
                                             <Button
                                                 type="button"
                                                 variant="outline"
+                                                className="w-full sm:w-auto"
                                                 onClick={() => setNewPayer('New Payer')}
                                             >
                                                 Add New
@@ -354,7 +355,7 @@ const TherapyCalculator = () => {
                                             </div>
                                         </div>
                                     )}
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid sm:grid-cols-2 gap-4">
                                         <div className="grid gap-2">
                                             <Label>Session Length (min)</Label>
                                             <Input
@@ -372,7 +373,7 @@ const TherapyCalculator = () => {
                                             />
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid sm:grid-cols-2 gap-4">
                                         <div className="grid gap-2">
                                             <Label>Base Rate ($)</Label>
                                             <Input
@@ -399,78 +400,144 @@ const TherapyCalculator = () => {
                     </div>
                 </CardHeader>
                 <CardContent>
+                    {/* Slider and input content */}
                     <div className="space-y-6">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b">
-                                    <th className="text-left p-2">Visit Type</th>
-                                    <th className="text-left p-2">Payer</th>
-                                    <th className="text-left p-2">Rate ($)</th>
-                                    <th className="text-left p-2">Sessions/Month</th>
-                                    <th className="text-left p-2">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {rows.map(row => (
-                                    <tr key={row.id} className="border-b">
-                                        <td className="p-2">{row.visitType}</td>
-                                        <td className="p-2">{row.payer}</td>
-                                        <td className="p-2">
-                                            <div className="w-32">
-                                                <Slider
-                                                    value={[row.adjustedRate]}
-                                                    min={50}
-                                                    max={400}
-                                                    step={5}
-                                                    onValueChange={(value) => handleRateChange(row.id, value)}
-                                                />
-                                                <div className="text-sm mt-1 flex items-center gap-2">
-                                                    ${row.adjustedRate}
-                                                    {formatChange(row.adjustedRate, row.baseRate)}
-                                                </div>
+                        {/* Mobile view */}
+                        <div className="md:hidden space-y-4">
+                            {rows.map(row => (
+                                <div key={row.id} className="bg-white p-4 rounded-lg border">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h3 className="font-medium">{row.visitType}</h3>
+                                            <p className="text-sm text-gray-600">{row.payer}</p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleEditClick(row)}
+                                            >
+                                                <Edit2 size={16} />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleDeleteRow(row.id)}
+                                            >
+                                                <Trash2 size={16} />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-sm text-gray-600">Rate ($)</label>
+                                            <Slider
+                                                value={[row.adjustedRate]}
+                                                min={50}
+                                                max={400}
+                                                step={5}
+                                                onValueChange={(value) => handleRateChange(row.id, value)}
+                                                className="my-2"
+                                            />
+                                            <div className="text-sm flex items-center gap-2">
+                                                ${row.adjustedRate}
+                                                {formatChange(row.adjustedRate, row.baseRate)}
                                             </div>
-                                        </td>
-                                        <td className="p-2">
-                                            <div className="w-32">
-                                                <Slider
-                                                    value={[row.adjustedSessions]}
-                                                    min={0}
-                                                    max={40}
-                                                    step={1}
-                                                    onValueChange={(value) => handleSessionChange(row.id, value)}
-                                                />
-                                                <div className="text-sm mt-1 flex items-center gap-2">
-                                                    {row.adjustedSessions}
-                                                    {formatChange(row.adjustedSessions, row.baseSessions)}
-                                                </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Sessions/Month</label>
+                                            <Slider
+                                                value={[row.adjustedSessions]}
+                                                min={0}
+                                                max={40}
+                                                step={1}
+                                                onValueChange={(value) => handleSessionChange(row.id, value)}
+                                                className="my-2"
+                                            />
+                                            <div className="text-sm flex items-center gap-2">
+                                                {row.adjustedSessions}
+                                                {formatChange(row.adjustedSessions, row.baseSessions)}
                                             </div>
-                                        </td>
-                                        <td className="p-2">
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleEditClick(row)}
-                                                >
-                                                    <Edit2 size={16} />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleDeleteRow(row.id)}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </Button>
-                                            </div>
-                                        </td>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Desktop view */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full min-w-[600px]">
+                                <thead>
+                                    <tr className="border-b">
+                                        <th className="text-left p-2">Visit Type</th>
+                                        <th className="text-left p-2">Payer</th>
+                                        <th className="text-left p-2">Rate ($)</th>
+                                        <th className="text-left p-2">Sessions/Month</th>
+                                        <th className="text-left p-2">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {rows.map(row => (
+                                        <tr key={row.id} className="border-b">
+                                            <td className="p-2">{row.visitType}</td>
+                                            <td className="p-2">{row.payer}</td>
+                                            <td className="p-2">
+                                                <div className="w-32">
+                                                    <Slider
+                                                        value={[row.adjustedRate]}
+                                                        min={50}
+                                                        max={400}
+                                                        step={5}
+                                                        onValueChange={(value) => handleRateChange(row.id, value)}
+                                                    />
+                                                    <div className="text-sm mt-1 flex items-center gap-2">
+                                                        ${row.adjustedRate}
+                                                        {formatChange(row.adjustedRate, row.baseRate)}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-2">
+                                                <div className="w-32">
+                                                    <Slider
+                                                        value={[row.adjustedSessions]}
+                                                        min={0}
+                                                        max={40}
+                                                        step={1}
+                                                        onValueChange={(value) => handleSessionChange(row.id, value)}
+                                                    />
+                                                    <div className="text-sm mt-1 flex items-center gap-2">
+                                                        {row.adjustedSessions}
+                                                        {formatChange(row.adjustedSessions, row.baseSessions)}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-2">
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleEditClick(row)}
+                                                    >
+                                                        <Edit2 size={16} />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleDeleteRow(row.id)}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
                         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                             <h3 className="text-lg font-semibold mb-4">Monthly Summary</h3>
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div>
                                     <div className="text-sm text-gray-600">Monthly Revenue</div>
                                     <div className="text-xl font-bold flex items-center gap-2">
@@ -500,8 +567,7 @@ const TherapyCalculator = () => {
                                 </div>
                             </div>
 
-
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                 <div>
                                     <div className="text-sm text-gray-600">Therapy Hours</div>
                                     <div className="text-xl font-bold flex items-center gap-2">
@@ -534,105 +600,105 @@ const TherapyCalculator = () => {
                                 </div>
                             </div>
 
-                            {/* Revenue Comparison Chart */}
-                            <div className="mt-6">
-                                <h4 className="text-sm font-semibold mb-2">Monthly Revenue Comparison</h4>
-                                <div className="h-64">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={prepareRevenueData(rows)}>
-                                            <XAxis dataKey="name" />
-                                            <YAxis
-                                                tickFormatter={(value) => `$${value.toLocaleString()}`}
-                                            />
-                                            <Tooltip
-                                                formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
-                                                labelFormatter={(label) => `${label} Revenue`}
-                                            />
-                                            <Legend />
-                                            {rows.map((row, index) => (
-                                                <Bar
-                                                    key={row.visitType}
-                                                    dataKey={row.visitType}
-                                                    stackId="stack"
-                                                    fill={COLORS[index % COLORS.length]}
-                                                    name={row.visitType}
-                                                />
-                                            ))}
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
-
-                            {/* Time Breakdown Chart */}
-                            <div className="mt-6">
-                                <h4 className="text-sm font-semibold mb-2">Time Allocation by Service</h4>
-                                <div className="h-64">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={prepareTimeData(rows)}>
-                                            <XAxis dataKey="name" />
-                                            <YAxis tickFormatter={(value) => `${value.toFixed(1)}h`} />
-                                            <Tooltip formatter={(value) => `${Number(value).toFixed(1)} hours`} />
-                                            <Legend />
-                                            {rows.map((row, index) => (
-                                                <Bar
-                                                    key={row.visitType}
-                                                    dataKey={row.visitType}
-                                                    stackId="stack"
-                                                    fill={COLORS[index % COLORS.length]}
-                                                    name={row.visitType}
-                                                />
-                                            ))}
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
-
-                            {/* Payer Mix Charts */}
-                            <div className="mt-6 grid grid-cols-2 gap-4">
+                            {/* Charts */}
+                            <div className="mt-6 space-y-6">
                                 <div>
-                                    <h4 className="text-sm font-semibold mb-2">Actual Payer Mix (Revenue)</h4>
-                                    <div className="h-64">
+                                    <h4 className="text-sm font-semibold mb-2">Monthly Revenue Comparison</h4>
+                                    <div className="h-[300px] sm:h-[400px]">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <PieChart>
-                                                <Pie
-                                                    data={preparePayerData(rows, false)}
-                                                    dataKey="value"
-                                                    nameKey="name"
-                                                    cx="50%"
-                                                    cy="50%"
-                                                    outerRadius={80}
-                                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                                >
-                                                    {preparePayerData(rows, false).map((_, index) => (
-                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                    ))}
-                                                </Pie>
-                                                <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-                                            </PieChart>
+                                            <BarChart data={prepareRevenueData(rows)}>
+                                                <XAxis dataKey="name" />
+                                                <YAxis
+                                                    tickFormatter={(value) => `$${value.toLocaleString()}`}
+                                                />
+                                                <Tooltip
+                                                    formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+                                                    labelFormatter={(label) => `${label} Revenue`}
+                                                />
+                                                <Legend />
+                                                {rows.map((row, index) => (
+                                                    <Bar
+                                                        key={row.visitType}
+                                                        dataKey={row.visitType}
+                                                        stackId="stack"
+                                                        fill={COLORS[index % COLORS.length]}
+                                                        name={row.visitType}
+                                                    />
+                                                ))}
+                                            </BarChart>
                                         </ResponsiveContainer>
                                     </div>
                                 </div>
+
                                 <div>
-                                    <h4 className="text-sm font-semibold mb-2">Planned Payer Mix (Revenue)</h4>
-                                    <div className="h-64">
+                                    <h4 className="text-sm font-semibold mb-2">Time Allocation by Service</h4>
+                                    <div className="h-[300px] sm:h-[400px]">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <PieChart>
-                                                <Pie
-                                                    data={preparePayerData(rows, true)}
-                                                    dataKey="value"
-                                                    nameKey="name"
-                                                    cx="50%"
-                                                    cy="50%"
-                                                    outerRadius={80}
-                                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                                >
-                                                    {preparePayerData(rows, true).map((_, index) => (
-                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                    ))}
-                                                </Pie>
-                                                <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-                                            </PieChart>
+                                            <BarChart data={prepareTimeData(rows)}>
+                                                <XAxis dataKey="name" />
+                                                <YAxis tickFormatter={(value) => `${value.toFixed(1)}h`} />
+                                                <Tooltip formatter={(value) => `${Number(value).toFixed(1)} hours`} />
+                                                <Legend />
+                                                {rows.map((row, index) => (
+                                                    <Bar
+                                                        key={row.visitType}
+                                                        dataKey={row.visitType}
+                                                        stackId="stack"
+                                                        fill={COLORS[index % COLORS.length]}
+                                                        name={row.visitType}
+                                                    />
+                                                ))}
+                                            </BarChart>
                                         </ResponsiveContainer>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 className="text-sm font-semibold mb-2">Actual Payer Mix (Revenue)</h4>
+                                        <div className="h-[300px]">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <PieChart>
+                                                    <Pie
+                                                        data={preparePayerData(rows, false)}
+                                                        dataKey="value"
+                                                        nameKey="name"
+                                                        cx="50%"
+                                                        cy="50%"
+                                                        outerRadius={80}
+                                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                                    >
+                                                        {preparePayerData(rows, false).map((_, index) => (
+                                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                        ))}
+                                                    </Pie>
+                                                    <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                                                </PieChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-semibold mb-2">Planned Payer Mix (Revenue)</h4>
+                                        <div className="h-[300px]">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <PieChart>
+                                                    <Pie
+                                                        data={preparePayerData(rows, true)}
+                                                        dataKey="value"
+                                                        nameKey="name"
+                                                        cx="50%"
+                                                        cy="50%"
+                                                        outerRadius={80}
+                                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                                    >
+                                                        {preparePayerData(rows, true).map((_, index) => (
+                                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                        ))}
+                                                    </Pie>
+                                                    <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                                                </PieChart>
+                                            </ResponsiveContainer>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
