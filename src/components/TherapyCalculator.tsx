@@ -24,6 +24,11 @@ interface TherapyRow {
     adjustedSessions: number;
 }
 
+interface PayerType {
+    id: string;
+    name: string;
+}
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const TherapyCalculator = () => {
@@ -64,6 +69,14 @@ const TherapyCalculator = () => {
     });
 
     const [activePieIndex, setActivePieIndex] = useState(-1);
+
+    const [payers, setPayers] = useState<PayerType[]>([
+        { id: 'private-pay', name: 'Private Pay' },
+        { id: 'insurance', name: 'Insurance' },
+        { id: 'sliding-scale', name: 'Sliding Scale' }
+    ]);
+
+    const [newPayer, setNewPayer] = useState('');
 
     const handleEditClick = (row: TherapyRow) => {
         setEditingRow(row);
@@ -172,36 +185,63 @@ const TherapyCalculator = () => {
     };
 
     const prepareRevenueData = (rows: TherapyRow[]) => {
-        // Transform data to have one entry per scenario
-        const baseTotal = rows.reduce((acc, row) => {
-            acc[row.visitType] = (acc[row.visitType] || 0) + (row.baseRate * row.baseSessions);
+        // Create an object with service types as properties
+        const data = rows.reduce((acc, row) => {
+            acc[row.visitType] = {
+                actual: row.baseRate * row.baseSessions,
+                planned: row.adjustedRate * row.adjustedSessions
+            };
             return acc;
-        }, {} as Record<string, number>);
+        }, {} as Record<string, { actual: number; planned: number }>);
 
-        const adjustedTotal = rows.reduce((acc, row) => {
-            acc[row.visitType] = (acc[row.visitType] || 0) + (row.adjustedRate * row.adjustedSessions);
-            return acc;
-        }, {} as Record<string, number>);
-
-        // Create array with two entries: base and adjusted
+        // Transform into the format needed for the chart
         return [
             {
-                name: 'Base',
-                ...baseTotal
+                name: 'Actual',
+                ...Object.fromEntries(
+                    Object.entries(data).map(([service, values]) => [service, values.actual])
+                )
             },
             {
-                name: 'Adjusted',
-                ...adjustedTotal
+                name: 'Planned',
+                ...Object.fromEntries(
+                    Object.entries(data).map(([service, values]) => [service, values.planned])
+                )
             }
         ];
     };
 
     const prepareTimeData = (rows: TherapyRow[]) => {
-        return rows.map(row => ({
-            name: row.visitType,
-            therapy: (row.sessionLength / 60) * row.adjustedSessions,
-            admin: (row.adminTime / 60) * row.adjustedSessions,
-        }));
+        // Create an object to store actual and planned hours for each service
+        const timeByService = rows.reduce((acc, row) => {
+            const actualTherapy = (row.sessionLength / 60) * row.baseSessions;
+            const actualAdmin = (row.adminTime / 60) * row.baseSessions;
+            const plannedTherapy = (row.sessionLength / 60) * row.adjustedSessions;
+            const plannedAdmin = (row.adminTime / 60) * row.adjustedSessions;
+
+            return {
+                Actual: {
+                    ...acc.Actual,
+                    [row.visitType]: (acc.Actual?.[row.visitType] || 0) + actualTherapy + actualAdmin
+                },
+                Planned: {
+                    ...acc.Planned,
+                    [row.visitType]: (acc.Planned?.[row.visitType] || 0) + plannedTherapy + plannedAdmin
+                }
+            };
+        }, { Actual: {}, Planned: {} } as Record<string, Record<string, number>>);
+
+        // Transform into the format needed for the chart
+        return [
+            {
+                name: 'Actual',
+                ...timeByService.Actual
+            },
+            {
+                name: 'Planned',
+                ...timeByService.Planned
+            }
+        ];
     };
 
     const preparePayerData = (rows: TherapyRow[], useAdjusted = true) => {
@@ -219,90 +259,144 @@ const TherapyCalculator = () => {
         }));
     };
 
+    const handleAddPayer = () => {
+        if (newPayer.trim()) {
+            const id = newPayer.toLowerCase().replace(/\s+/g, '-');
+            setPayers([...payers, { id, name: newPayer.trim() }]);
+            setNewPayer('');
+        }
+    };
+
     return (
         <div className="w-full max-w-4xl mx-auto p-4">
             <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>Therapy Practice Calculator</CardTitle>
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="flex items-center gap-2">
-                                <Plus size={16} /> Add Service
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>
-                                    {editingRow ? 'Edit Service' : 'Add New Service'}
-                                </DialogTitle>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid gap-2">
-                                    <Label>Visit Type</Label>
-                                    <Input
-                                        value={formData.visitType}
-                                        onChange={(e) => setFormData({ ...formData, visitType: e.target.value })}
-                                        placeholder="e.g., Individual 45"
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label>Payer</Label>
-                                    <Select
-                                        value={formData.payer}
-                                        onValueChange={(value) => setFormData({ ...formData, payer: value })}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select payer type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Private Pay">Private Pay</SelectItem>
-                                            <SelectItem value="Insurance">Insurance</SelectItem>
-                                            <SelectItem value="Sliding Scale">Sliding Scale</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
+                <CardHeader className="flex flex-col gap-4">
+                    <div>
+                        <p className="text-muted-foreground mt-2">
+                            Welcome to the Therapy Practice Calculator! This tool helps you plan and visualize your therapy practice's revenue, time allocation, and payer mix. Add your services using the "Add Service" button, then adjust rates and session counts using the sliders to see how changes impact your practice metrics.
+                        </p>
+                    </div>
+                    <div className="flex justify-end">
+                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button className="flex items-center gap-2">
+                                    <Plus size={16} /> Add Service
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        {editingRow ? 'Edit Service' : 'Add New Service'}
+                                    </DialogTitle>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
                                     <div className="grid gap-2">
-                                        <Label>Session Length (min)</Label>
+                                        <Label>Visit Type</Label>
                                         <Input
-                                            type="number"
-                                            value={formData.sessionLength}
-                                            onChange={(e) => setFormData({ ...formData, sessionLength: Number(e.target.value) })}
+                                            value={formData.visitType}
+                                            onChange={(e) => setFormData({ ...formData, visitType: e.target.value })}
+                                            placeholder="e.g., Individual 45"
                                         />
                                     </div>
                                     <div className="grid gap-2">
-                                        <Label>Admin Time (min)</Label>
-                                        <Input
-                                            type="number"
-                                            value={formData.adminTime}
-                                            onChange={(e) => setFormData({ ...formData, adminTime: Number(e.target.value) })}
-                                        />
+                                        <Label>Payer</Label>
+                                        <div className="flex gap-2">
+                                            <Select
+                                                value={formData.payer}
+                                                onValueChange={(value) => setFormData({ ...formData, payer: value })}
+                                            >
+                                                <SelectTrigger className="flex-1">
+                                                    <SelectValue placeholder="Select payer type" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {payers.map(payer => (
+                                                        <SelectItem key={payer.id} value={payer.name}>
+                                                            {payer.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => setNewPayer('New Payer')}
+                                            >
+                                                Add New
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    {newPayer !== '' && (
+                                        <div className="grid gap-2">
+                                            <Label>New Payer Name</Label>
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    value={newPayer}
+                                                    onChange={(e) => setNewPayer(e.target.value)}
+                                                    placeholder="Enter new payer type"
+                                                    className="flex-1"
+                                                    autoFocus
+                                                    onFocus={(e) => e.target.select()}
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    onClick={handleAddPayer}
+                                                    disabled={!newPayer.trim()}
+                                                >
+                                                    Add
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => setNewPayer('')}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid gap-2">
+                                            <Label>Session Length (min)</Label>
+                                            <Input
+                                                type="number"
+                                                value={formData.sessionLength}
+                                                onChange={(e) => setFormData({ ...formData, sessionLength: Number(e.target.value) })}
+                                            />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label>Admin Time (min)</Label>
+                                            <Input
+                                                type="number"
+                                                value={formData.adminTime}
+                                                onChange={(e) => setFormData({ ...formData, adminTime: Number(e.target.value) })}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid gap-2">
+                                            <Label>Base Rate ($)</Label>
+                                            <Input
+                                                type="number"
+                                                value={formData.baseRate}
+                                                onChange={(e) => setFormData({ ...formData, baseRate: Number(e.target.value) })}
+                                            />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label>Base Sessions/Month</Label>
+                                            <Input
+                                                type="number"
+                                                value={formData.baseSessions}
+                                                onChange={(e) => setFormData({ ...formData, baseSessions: Number(e.target.value) })}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="grid gap-2">
-                                        <Label>Base Rate ($)</Label>
-                                        <Input
-                                            type="number"
-                                            value={formData.baseRate}
-                                            onChange={(e) => setFormData({ ...formData, baseRate: Number(e.target.value) })}
-                                        />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label>Base Sessions/Month</Label>
-                                        <Input
-                                            type="number"
-                                            value={formData.baseSessions}
-                                            onChange={(e) => setFormData({ ...formData, baseSessions: Number(e.target.value) })}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <Button onClick={handleSaveRow}>
-                                {editingRow ? 'Save Changes' : 'Add Service'}
-                            </Button>
-                        </DialogContent>
-                    </Dialog>
+                                <Button onClick={handleSaveRow}>
+                                    {editingRow ? 'Save Changes' : 'Add Service'}
+                                </Button>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-6">
@@ -326,7 +420,7 @@ const TherapyCalculator = () => {
                                                 <Slider
                                                     value={[row.adjustedRate]}
                                                     min={50}
-                                                    max={300}
+                                                    max={400}
                                                     step={5}
                                                     onValueChange={(value) => handleRateChange(row.id, value)}
                                                 />
@@ -341,7 +435,7 @@ const TherapyCalculator = () => {
                                                 <Slider
                                                     value={[row.adjustedSessions]}
                                                     min={0}
-                                                    max={30}
+                                                    max={40}
                                                     step={1}
                                                     onValueChange={(value) => handleSessionChange(row.id, value)}
                                                 />
@@ -406,58 +500,61 @@ const TherapyCalculator = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-4 p-4 bg-gray-100 rounded">
-                                <div className="text-sm text-gray-600 mb-2">Hours Breakdown</div>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div>
-                                        <div className="text-sm text-gray-600">Therapy Hours</div>
-                                        <div className="text-xl font-bold flex items-center gap-2">
-                                            {calculateHours().therapy.toFixed(2)}
-                                            {formatChange(
-                                                calculateHours().therapy,
-                                                calculateHours(false).therapy
-                                            )}
-                                        </div>
+
+                            <div className="grid grid-cols-3 gap-4">
+                                <div>
+                                    <div className="text-sm text-gray-600">Therapy Hours</div>
+                                    <div className="text-xl font-bold flex items-center gap-2">
+                                        {calculateHours().therapy.toFixed(2)}
+                                        {formatChange(
+                                            calculateHours().therapy,
+                                            calculateHours(false).therapy
+                                        )}
                                     </div>
-                                    <div>
-                                        <div className="text-sm text-gray-600">Admin Hours</div>
-                                        <div className="text-xl font-bold flex items-center gap-2">
-                                            {calculateHours().admin.toFixed(2)}
-                                            {formatChange(
-                                                calculateHours().admin,
-                                                calculateHours(false).admin
-                                            )}
-                                        </div>
+                                </div>
+                                <div>
+                                    <div className="text-sm text-gray-600">Admin Hours</div>
+                                    <div className="text-xl font-bold flex items-center gap-2">
+                                        {calculateHours().admin.toFixed(2)}
+                                        {formatChange(
+                                            calculateHours().admin,
+                                            calculateHours(false).admin
+                                        )}
                                     </div>
-                                    <div>
-                                        <div className="text-sm text-gray-600">Total Hours</div>
-                                        <div className="text-xl font-bold flex items-center gap-2">
-                                            {calculateHours().total.toFixed(2)}
-                                            {formatChange(
-                                                calculateHours().total,
-                                                calculateHours(false).total
-                                            )}
-                                        </div>
+                                </div>
+                                <div>
+                                    <div className="text-sm text-gray-600">Total Hours</div>
+                                    <div className="text-xl font-bold flex items-center gap-2">
+                                        {calculateHours().total.toFixed(2)}
+                                        {formatChange(
+                                            calculateHours().total,
+                                            calculateHours(false).total
+                                        )}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Revenue Comparison Chart */}
                             <div className="mt-6">
-                                <h4 className="text-sm font-semibold mb-2">Revenue by Service Type</h4>
+                                <h4 className="text-sm font-semibold mb-2">Monthly Revenue Comparison</h4>
                                 <div className="h-64">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={prepareRevenueData(rows)}>
                                             <XAxis dataKey="name" />
-                                            <YAxis />
-                                            <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                                            <YAxis
+                                                tickFormatter={(value) => `$${value.toLocaleString()}`}
+                                            />
+                                            <Tooltip
+                                                formatter={(value: number) => [`$${value.toLocaleString()}`, "Revenue"]}
+                                                labelFormatter={(label) => `${label} Revenue`}
+                                            />
                                             <Legend />
-                                            {rows.map(row => (
+                                            {rows.map((row, index) => (
                                                 <Bar
                                                     key={row.visitType}
                                                     dataKey={row.visitType}
                                                     stackId="stack"
-                                                    fill={COLORS[rows.indexOf(row) % COLORS.length]}
+                                                    fill={COLORS[index % COLORS.length]}
                                                     name={row.visitType}
                                                 />
                                             ))}
@@ -473,11 +570,18 @@ const TherapyCalculator = () => {
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={prepareTimeData(rows)}>
                                             <XAxis dataKey="name" />
-                                            <YAxis />
-                                            <Tooltip formatter={(value) => `${value.toFixed(1)} hours`} />
+                                            <YAxis tickFormatter={(value) => `${value.toFixed(1)}h`} />
+                                            <Tooltip formatter={(value) => `${Number(value).toFixed(1)} hours`} />
                                             <Legend />
-                                            <Bar dataKey="therapy" stackId="time" fill="#22c55e" name="Therapy Hours" />
-                                            <Bar dataKey="admin" stackId="time" fill="#eab308" name="Admin Hours" />
+                                            {rows.map((row, index) => (
+                                                <Bar
+                                                    key={row.visitType}
+                                                    dataKey={row.visitType}
+                                                    stackId="stack"
+                                                    fill={COLORS[index % COLORS.length]}
+                                                    name={row.visitType}
+                                                />
+                                            ))}
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -486,7 +590,7 @@ const TherapyCalculator = () => {
                             {/* Payer Mix Charts */}
                             <div className="mt-6 grid grid-cols-2 gap-4">
                                 <div>
-                                    <h4 className="text-sm font-semibold mb-2">Base Payer Mix</h4>
+                                    <h4 className="text-sm font-semibold mb-2">Actual Payer Mix (Revenue)</h4>
                                     <div className="h-64">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <PieChart>
@@ -509,7 +613,7 @@ const TherapyCalculator = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <h4 className="text-sm font-semibold mb-2">Adjusted Payer Mix</h4>
+                                    <h4 className="text-sm font-semibold mb-2">Planned Payer Mix (Revenue)</h4>
                                     <div className="h-64">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <PieChart>
