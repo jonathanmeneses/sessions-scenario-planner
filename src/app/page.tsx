@@ -1,4 +1,4 @@
-import TherapyCalculator from '@/components/TherapyCalculator'
+import TherapyCalculator from '@/components/TherapyCalculator';
 
 export default function Home() {
   return (
@@ -6,5 +6,5 @@ export default function Home() {
       <h1 className="text-4xl font-bold mb-8">Therapy Practice Calculator</h1>
       <TherapyCalculator />
     </main>
-  )
+  );
 }

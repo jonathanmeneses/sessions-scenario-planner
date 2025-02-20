@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -35,8 +35,8 @@ const TherapyCalculator = () => {
     const [rows, setRows] = useState<TherapyRow[]>([
         {
             id: 1,
-            visitType: "Individual 45",
-            payer: "Private Pay",
+            visitType: 'Individual 45',
+            payer: 'Private Pay',
             sessionLength: 45,
             adminTime: 15,
             baseRate: 150,
@@ -46,8 +46,8 @@ const TherapyCalculator = () => {
         },
         {
             id: 2,
-            visitType: "Individual 60",
-            payer: "Insurance",
+            visitType: 'Individual 60',
+            payer: 'Insurance',
             sessionLength: 60,
             adminTime: 15,
             baseRate: 120,
@@ -60,8 +60,8 @@ const TherapyCalculator = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingRow, setEditingRow] = useState<TherapyRow | null>(null);
     const [formData, setFormData] = useState({
-        visitType: "",
-        payer: "",
+        visitType: '',
+        payer: '',
         sessionLength: 45,
         adminTime: 15,
         baseRate: 150,
@@ -127,8 +127,8 @@ const TherapyCalculator = () => {
         }
 
         setFormData({
-            visitType: "",
-            payer: "",
+            visitType: '',
+            payer: '',
             sessionLength: 45,
             adminTime: 15,
             baseRate: 150,
@@ -545,7 +545,7 @@ const TherapyCalculator = () => {
                                                 tickFormatter={(value) => `$${value.toLocaleString()}`}
                                             />
                                             <Tooltip
-                                                formatter={(value: number) => [`$${value.toLocaleString()}`, "Revenue"]}
+                                                formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
                                                 labelFormatter={(label) => `${label} Revenue`}
                                             />
                                             <Legend />
