@@ -1,7 +1,7 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 Largely built with Cursor using the Claude-Sonnet-3.5 model.
 
-You can access this app via [Vercel](https://therapy-practice-calculator-10ll4fxak-jonathan-meneses-projects.vercel.app/)
+You can access this app via [Vercel](https://therapy-practice-calculator.vercel.app/)
 
 ## Getting Started
 
