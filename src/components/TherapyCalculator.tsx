@@ -293,7 +293,7 @@ const TherapyCalculator = () => {
                                             onChange={(e) => setUserName(e.target.value)}
                                             className="w-40 inline-block"
                                             placeholder="Enter your name"
-                                            onKeyPress={(e) => {
+                                            onKeyDown={(e) => {
                                                 if (e.key === 'Enter' && userName.trim()) {
                                                     setHasEnteredName(true);
                                                 }
@@ -307,7 +307,7 @@ const TherapyCalculator = () => {
                                         </Button>
                                     </div>
                                 </div>
-                            ) : (
+                            ) : isEditingWelcome ? (
                                 // Planning Goal Section
                                 <div className="space-y-4">
                                     <h2 className="font-medium text-lg">Hi {userName}!</h2>
@@ -320,6 +320,11 @@ const TherapyCalculator = () => {
                                             onChange={(e) => setPlanningGoal(e.target.value)}
                                             className="w-full"
                                             placeholder="e.g., Plan my practice revenue for next quarter"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && planningGoal.trim()) {
+                                                    setIsEditingWelcome(false);
+                                                }
+                                            }}
                                         />
                                         <Button
                                             className="w-full"
@@ -327,6 +332,30 @@ const TherapyCalculator = () => {
                                             disabled={!planningGoal.trim()}
                                         >
                                             Let's Get Started
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : (
+                                // Display Goal Section
+                                <div className="space-y-4">
+                                    <h2 className="font-medium text-lg">Hi {userName}!</h2>
+                                    <div className="space-y-2">
+                                        <p className="text-gray-700">Let's achieve your goal:</p>
+                                        <p className="font-medium text-gray-900 pl-4 border-l-4 border-blue-500">
+                                            "{planningGoal}"
+                                        </p>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && userName.trim()) {
+                                                    setHasEnteredName(true);
+                                                }
+                                            }}
+                                            onClick={() => setIsEditingWelcome(true)}
+                                            className="mt-2"
+                                        >
+                                            Edit Goal
                                         </Button>
                                     </div>
                                 </div>
