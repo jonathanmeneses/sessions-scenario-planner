@@ -268,6 +268,10 @@ const TherapyCalculator = () => {
         if (newPayer.trim()) {
             const id = newPayer.toLowerCase().replace(/\s+/g, '-');
             setPayers([...payers, { id, name: newPayer.trim() }]);
+            setFormData({
+                ...formData,
+                payer: newPayer.trim()
+            });
             setNewPayer('');
         }
     };
