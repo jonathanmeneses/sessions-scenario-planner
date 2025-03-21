@@ -78,6 +78,11 @@ const TherapyCalculator = () => {
 
     const [newPayer, setNewPayer] = useState('');
 
+    const [userName, setUserName] = useState('');
+    const [hasEnteredName, setHasEnteredName] = useState(false);
+    const [planningGoal, setPlanningGoal] = useState('');
+    const [isEditingWelcome, setIsEditingWelcome] = useState(true);
+
     const handleEditClick = (row: TherapyRow) => {
         setEditingRow(row);
         setFormData({
@@ -271,11 +276,60 @@ const TherapyCalculator = () => {
         <div className="w-full max-w-4xl mx-auto p-4">
             <Card>
                 <CardHeader className="flex flex-col gap-4">
-                    <div>
-                        <p className="text-muted-foreground mt-2">
-                            Welcome to the Therapy Practice Calculator! This tool helps you plan and visualize your therapy practice's revenue, time allocation, and payer mix. Add your services using the "Add Service" button, then adjust rates and session counts using the sliders to see how changes impact your practice metrics.
-                        </p>
+                    <div className="bg-yellow-50 p-6 rounded-lg shadow-sm border border-yellow-100">
+                        <div className="space-y-4">
+                            {!hasEnteredName ? (
+                                // Name Input Section
+                                <div className="space-y-4">
+                                    <h2 className="font-medium text-lg">Welcome!</h2>
+                                    <div className="flex items-center gap-2">
+                                        <Label>What's your name?</Label>
+                                        <Input
+                                            value={userName}
+                                            onChange={(e) => setUserName(e.target.value)}
+                                            className="w-40 inline-block"
+                                            placeholder="Enter your name"
+                                            onKeyPress={(e) => {
+                                                if (e.key === 'Enter' && userName.trim()) {
+                                                    setHasEnteredName(true);
+                                                }
+                                            }}
+                                        />
+                                        <Button
+                                            onClick={() => setHasEnteredName(true)}
+                                            disabled={!userName.trim()}
+                                        >
+                                            Continue
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : (
+                                // Planning Goal Section
+                                <div className="space-y-4">
+                                    <h2 className="font-medium text-lg">Hi {userName}!</h2>
+                                    <p className="text-gray-700">
+                                        {userName}, what's the <strong>one thing</strong> you want to plan for today?
+                                    </p>
+                                    <div className="space-y-2">
+                                        <Input
+                                            value={planningGoal}
+                                            onChange={(e) => setPlanningGoal(e.target.value)}
+                                            className="w-full"
+                                            placeholder="e.g., Plan my practice revenue for next quarter"
+                                        />
+                                        <Button
+                                            className="w-full"
+                                            onClick={() => setIsEditingWelcome(false)}
+                                            disabled={!planningGoal.trim()}
+                                        >
+                                            Let's Get Started
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
+
                     <div className="flex justify-end">
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                             <DialogTrigger asChild>
