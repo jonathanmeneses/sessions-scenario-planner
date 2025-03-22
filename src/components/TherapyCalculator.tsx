@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useEnterSubmit } from '@/hooks/useEnterSubmit';
 
 // Add this interface near the top of the file, before the component
 interface TherapyRow {
@@ -29,7 +30,21 @@ interface PayerType {
     name: string;
 }
 
+interface GoalMetric {
+    type: 'revenue' | 'visits' | 'blendedRate' | 'therapyHours' | 'adminHours' | 'totalHours';
+    target: number;
+}
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+const METRIC_LABELS = {
+    revenue: 'Monthly Revenue',
+    visits: 'Total Monthly Visits',
+    blendedRate: 'Blended Rate',
+    therapyHours: 'Therapy Hours',
+    adminHours: 'Admin Hours',
+    totalHours: 'Total Hours'
+} as const;
 
 const TherapyCalculator = () => {
     const [rows, setRows] = useState<TherapyRow[]>([
@@ -82,6 +97,19 @@ const TherapyCalculator = () => {
     const [hasEnteredName, setHasEnteredName] = useState(false);
     const [planningGoal, setPlanningGoal] = useState('');
     const [isEditingWelcome, setIsEditingWelcome] = useState(true);
+    const [goalMetrics, setGoalMetrics] = useState<GoalMetric[]>([]);
+    const [selectedMetric, setSelectedMetric] = useState<keyof typeof METRIC_LABELS | null>(null);
+    const [targetValue, setTargetValue] = useState<string>('');
+
+    const { handleKeyDown: handleNameKeyDown } = useEnterSubmit({
+        onSubmit: () => setHasEnteredName(true),
+        isEnabled: !!userName.trim()
+    });
+
+    const { handleKeyDown: handleGoalKeyDown } = useEnterSubmit({
+        onSubmit: () => setIsEditingWelcome(false),
+        isEnabled: !!planningGoal.trim()
+    });
 
     const handleEditClick = (row: TherapyRow) => {
         setEditingRow(row);
@@ -276,6 +304,41 @@ const TherapyCalculator = () => {
         }
     };
 
+    const getCurrentMetricValue = (metric: keyof typeof METRIC_LABELS): number => {
+        switch (metric) {
+            case 'revenue':
+                return calculateRevenue();
+            case 'visits':
+                return calculateTotalVisits(rows);
+            case 'blendedRate':
+                return calculateBlendedRate();
+            case 'therapyHours':
+                return calculateHours().therapy;
+            case 'adminHours':
+                return calculateHours().admin;
+            case 'totalHours':
+                return calculateHours().total;
+            default:
+                return 0;
+        }
+    };
+
+    const handleMetricSelect = (metric: keyof typeof METRIC_LABELS) => {
+        setSelectedMetric(metric);
+        setTargetValue(getCurrentMetricValue(metric).toString());
+    };
+
+    const handleSaveMetric = () => {
+        if (selectedMetric && targetValue) {
+            setGoalMetrics([...goalMetrics, {
+                type: selectedMetric,
+                target: Number(targetValue)
+            }]);
+            setSelectedMetric(null);
+            setTargetValue('');
+        }
+    };
+
     return (
         <div className="w-full max-w-4xl mx-auto p-4">
             <Card>
@@ -293,11 +356,7 @@ const TherapyCalculator = () => {
                                             onChange={(e) => setUserName(e.target.value)}
                                             className="w-40 inline-block"
                                             placeholder="Enter your name"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && userName.trim()) {
-                                                    setHasEnteredName(true);
-                                                }
-                                            }}
+                                            onKeyDown={handleNameKeyDown}
                                         />
                                         <Button
                                             onClick={() => setHasEnteredName(true)}
@@ -320,11 +379,7 @@ const TherapyCalculator = () => {
                                             onChange={(e) => setPlanningGoal(e.target.value)}
                                             className="w-full"
                                             placeholder="e.g., Plan my practice revenue for next quarter"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && planningGoal.trim()) {
-                                                    setIsEditingWelcome(false);
-                                                }
-                                            }}
+                                            onKeyDown={handleGoalKeyDown}
                                         />
                                         <Button
                                             className="w-full"
@@ -344,14 +399,72 @@ const TherapyCalculator = () => {
                                         <p className="font-medium text-gray-900 pl-4 border-l-4 border-blue-500">
                                             "{planningGoal}"
                                         </p>
+
+                                        {goalMetrics.length < 2 && (
+                                            <div className="space-y-4 mt-4">
+                                                <div className="space-y-2">
+                                                    <Label>Select a metric to track</Label>
+                                                    <Select
+                                                        value={selectedMetric || ''}
+                                                        onValueChange={(value) => handleMetricSelect(value as keyof typeof METRIC_LABELS)}
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select a metric" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {Object.entries(METRIC_LABELS).map(([key, label]) => (
+                                                                <SelectItem key={key} value={key}>
+                                                                    {label}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+
+                                                {selectedMetric && (
+                                                    <div className="space-y-2">
+                                                        <Label>Set your target value</Label>
+                                                        <div className="flex gap-2">
+                                                            <Input
+                                                                type="number"
+                                                                value={targetValue}
+                                                                onChange={(e) => setTargetValue(e.target.value)}
+                                                                className="flex-1"
+                                                            />
+                                                            <Button
+                                                                onClick={handleSaveMetric}
+                                                                disabled={!targetValue}
+                                                            >
+                                                                Save Goal
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {goalMetrics.length > 0 && (
+                                            <div className="mt-4 space-y-2">
+                                                <h3 className="font-medium">Your Goals:</h3>
+                                                {goalMetrics.map((metric, index) => {
+                                                    const currentValue = getCurrentMetricValue(metric.type);
+                                                    const delta = currentValue - metric.target;
+                                                    return (
+                                                        <div key={index} className="flex items-center gap-2">
+                                                            <span className="font-medium">{METRIC_LABELS[metric.type]}:</span>
+                                                            <span>${metric.target.toLocaleString()}</span>
+                                                            <span className={delta >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                                                ({delta >= 0 ? '+' : ''}{delta.toLocaleString()})
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && userName.trim()) {
-                                                    setHasEnteredName(true);
-                                                }
-                                            }}
                                             onClick={() => setIsEditingWelcome(true)}
                                             className="mt-2"
                                         >
