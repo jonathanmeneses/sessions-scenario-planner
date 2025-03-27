@@ -1,1 +1,0 @@
-import { TherapyCalculator } from './components/therapy-calculator'; 
