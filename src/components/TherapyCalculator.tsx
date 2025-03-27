@@ -505,10 +505,11 @@ const TherapyCalculator = () => {
                                     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                                         <h3 className="font-medium text-gray-900 mb-3">Quick Guide</h3>
                                         <ol className="space-y-2 text-gray-700 list-decimal pl-5">
-                                            <li>Add your service types using the <strong>Add Service</strong> button</li>
-                                            <li>Adjust rates and session counts with the sliders</li>
+                                            <li>Add your current practice visit types and frequencies using the <strong>Add Service</strong> button</li>
+                                            <li>Edit the existing visit types using the pencil icon to match your current practice baselines</li>
                                             <li>Set up to 3 specific goals in the <strong>Target Setting</strong> section</li>
-                                            <li>View your monthly summary and projected values</li>
+                                            <li>Use the sliders for rate and sessions/month for each visit type to see changes to your practice metrics</li>
+                                            <li>View your monthly summary and projected values, compared against your selected targets</li>
                                             <li>Explore charts for deeper insights into your practice metrics</li>
                                         </ol>
                                     </div>
