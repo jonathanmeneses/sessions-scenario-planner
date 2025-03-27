@@ -123,6 +123,7 @@ const TherapyCalculator = () => {
     const [showCharts, setShowCharts] = useState(false);
     const [showGoalCard, setShowGoalCard] = useState(true);
     const [showWelcomeCard, setShowWelcomeCard] = useState(true);
+    const [showPersonalCard, setShowPersonalCard] = useState(true);
 
     const handleAddPayer = () => {
         if (newPayer.trim()) {
@@ -420,20 +421,17 @@ const TherapyCalculator = () => {
                 <CardHeader>
                     <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold">Therapy Practice Calculator</h3>
-                            {hasEnteredName && (
-                                <div className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
-                                    {userName}
-                                </div>
-                            )}
+                            <h3 className="text-lg font-semibold">
+                                {hasEnteredName ? `${userName}'s Therapy Practice Calculator` : 'Therapy Practice Calculator'}
+                            </h3>
                         </div>
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setShowWelcomeCard(!showWelcomeCard)}
+                            onClick={() => setShowPersonalCard(!showPersonalCard)}
                             className="flex items-center gap-1 text-gray-700"
                         >
-                            {showWelcomeCard ? (
+                            {showPersonalCard ? (
                                 <>
                                     Hide
                                     <ChevronUp size={16} />
@@ -447,7 +445,7 @@ const TherapyCalculator = () => {
                         </Button>
                     </div>
                 </CardHeader>
-                {showWelcomeCard && (
+                {showPersonalCard && (
                     <CardContent>
                         <div className="space-y-6">
                             {!hasEnteredName ? (
@@ -486,7 +484,7 @@ const TherapyCalculator = () => {
                                 <div className="space-y-5">
                                     {planningGoal && (
                                         <div className="flex items-start gap-3 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 mt-1"><path d="m9 12 2 2 4-4"></path><path d="M12 3c-1.2 0-2.4.6-3 1.7A3.6 3.6 0 0 0 4.6 9c-1 .6-1.7 1.8-1.7 3a3.5 3.5 0 0 0 3.5 3.5H19a3 3 0 0 0 3-3c0-1.1-.6-2.1-1.5-2.5-.1-2.3-2-4.2-4.3-4.3A5 5 0 0 0 12 3z"></path></svg>
+
                                             <div>
                                                 <h3 className="font-semibold text-gray-900">Your Goal</h3>
                                                 <p className="text-gray-800">{planningGoal}</p>
@@ -502,18 +500,6 @@ const TherapyCalculator = () => {
                                         </div>
                                     )}
 
-                                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                                        <h3 className="font-medium text-gray-900 mb-3">Quick Guide</h3>
-                                        <ol className="space-y-2 text-gray-700 list-decimal pl-5">
-                                            <li>Add your current practice visit types and frequencies using the <strong>Add Service</strong> button</li>
-                                            <li>Edit the existing visit types using the pencil icon to match your current practice baselines</li>
-                                            <li>Set up to 3 specific goals in the <strong>Target Setting</strong> section</li>
-                                            <li>Use the sliders for rate and sessions/month for each visit type to see changes to your practice metrics</li>
-                                            <li>View your monthly summary and projected values, compared against your selected targets</li>
-                                            <li>Explore charts for deeper insights into your practice metrics</li>
-                                        </ol>
-                                    </div>
-
                                     {!isEditingWelcome && !planningGoal && (
                                         <Button
                                             variant="outline"
@@ -526,6 +512,47 @@ const TherapyCalculator = () => {
                                     )}
                                 </div>
                             )}
+                        </div>
+                    </CardContent>
+                )}
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-semibold">Getting Started Guide</h3>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowWelcomeCard(!showWelcomeCard)}
+                            className="flex items-center gap-1 text-gray-700"
+                        >
+                            {showWelcomeCard ? (
+                                <>
+                                    Hide Guide
+                                    <ChevronUp size={16} />
+                                </>
+                            ) : (
+                                <>
+                                    Show Guide
+                                    <ChevronDown size={16} />
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </CardHeader>
+                {showWelcomeCard && (
+                    <CardContent>
+                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                            <h3 className="font-medium text-gray-900 mb-3">Quick Guide</h3>
+                            <ol className="space-y-2 text-gray-700 list-decimal pl-5">
+                                <li>Add your current practice visit types and frequencies using the <strong>Add Service</strong> button</li>
+                                <li>Edit the existing visit types using the pencil icon to match your current practice baselines</li>
+                                <li>Set up to 3 specific goals in the <strong>Target Setting</strong> section</li>
+                                <li>Use the sliders for rate and sessions/month for each visit type to see changes to your practice metrics</li>
+                                <li>View your monthly summary and projected values, compared against your selected targets</li>
+                                <li>Explore charts for deeper insights into your practice metrics</li>
+                            </ol>
                         </div>
                     </CardContent>
                 )}
