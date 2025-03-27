@@ -33,6 +33,7 @@ interface PayerType {
 interface GoalMetric {
     type: 'revenue' | 'visits' | 'blendedRate' | 'therapyHours' | 'adminHours' | 'totalHours';
     target: number;
+    comparison: 'atLeast' | 'noMoreThan';
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
@@ -143,6 +144,14 @@ const TherapyCalculator = () => {
     const { handleKeyDown: handleGoalKeyDown } = useEnterSubmit({
         onSubmit: () => setIsEditingWelcome(false),
         isEnabled: !!planningGoal.trim()
+    });
+
+    const { handleKeyDown: handleGetStartedKeyDown } = useEnterSubmit({
+        onSubmit: () => {
+            setHasEnteredName(true);
+            setIsEditingWelcome(false);
+        },
+        isEnabled: true
     });
 
     const { handleKeyDown: handleNewPayerKeyDown } = useEnterSubmit({
@@ -362,7 +371,7 @@ const TherapyCalculator = () => {
                 // Editing existing metric
                 setGoalMetrics(goalMetrics.map((metric, index) =>
                     index === editingMetricIndex
-                        ? { type: selectedMetric, target: Number(targetValue) }
+                        ? { type: selectedMetric, target: Number(targetValue), comparison: 'atLeast' }
                         : metric
                 ));
             } else {
@@ -370,7 +379,8 @@ const TherapyCalculator = () => {
                 const newMetrics = [...goalMetrics];
                 newMetrics[activeSlot] = {
                     type: selectedMetric,
-                    target: Number(targetValue)
+                    target: Number(targetValue),
+                    comparison: 'atLeast'
                 };
                 setGoalMetrics(newMetrics);
             }
@@ -409,12 +419,19 @@ const TherapyCalculator = () => {
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-start">
-                        <h2 className="font-medium text-lg">Welcome</h2>
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-semibold">Therapy Practice Calculator</h3>
+                            {hasEnteredName && (
+                                <div className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    {userName}
+                                </div>
+                            )}
+                        </div>
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setShowWelcomeCard(!showWelcomeCard)}
-                            className="flex items-center gap-1"
+                            className="flex items-center gap-1 text-gray-700"
                         >
                             {showWelcomeCard ? (
                                 <>
@@ -432,75 +449,80 @@ const TherapyCalculator = () => {
                 </CardHeader>
                 {showWelcomeCard && (
                     <CardContent>
-                        <div className="space-y-4">
-                            <div className="text-gray-700 space-y-2">
-                                <p>Welcome to the Therapy Practice Calculator! This tool helps you plan and visualize your therapy practice's revenue, time allocation, and payer mix.</p>
-                                <p>Once you enter your name and set your overarching goal, you should setup your current practice using the Practice Metrics Section.</p>
-                                <p>Add your services and your current monthly session volume using the "Add Service" button, then adjust rates and session counts using the sliders to see how changes impact your practice metrics.</p>
-                                <p>You can also set goals in the "Goal Tracking" section to help you track how your practice is trending towards your goals!</p>
-                            </div>
+                        <div className="space-y-6">
                             {!hasEnteredName ? (
-                                // Name Input Section
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                        <Label>What's your name?</Label>
-                                        <Input
-                                            value={userName}
-                                            onChange={(e) => setUserName(e.target.value)}
-                                            className="w-40 inline-block"
-                                            placeholder="Enter your name"
-                                            onKeyDown={handleNameKeyDown}
-                                        />
+                                <div className="space-y-5">
+                                    <div className="flex flex-col sm:flex-row gap-4 items-center">
+                                        <div className="w-full sm:w-auto">
+                                            <Input
+                                                value={userName}
+                                                onChange={(e) => setUserName(e.target.value)}
+                                                className="w-full sm:w-64"
+                                                placeholder="Enter your name (optional)"
+                                                onKeyDown={handleNameKeyDown}
+                                            />
+                                        </div>
+                                        <div className="w-full sm:w-auto flex-1">
+                                            <Input
+                                                value={planningGoal}
+                                                onChange={(e) => setPlanningGoal(e.target.value)}
+                                                className="w-full"
+                                                placeholder="What's your practice goal? (optional)"
+                                                onKeyDown={handleGetStartedKeyDown}
+                                            />
+                                        </div>
                                         <Button
-                                            onClick={() => setHasEnteredName(true)}
-                                            disabled={!userName.trim()}
+                                            className="w-full sm:w-auto"
+                                            onClick={() => {
+                                                setHasEnteredName(true);
+                                                setIsEditingWelcome(false);
+                                            }}
                                         >
-                                            Continue
-                                        </Button>
-                                    </div>
-                                </div>
-                            ) : isEditingWelcome ? (
-                                // Planning Goal Section
-                                <div className="space-y-4">
-                                    <h2 className="font-medium text-lg">Hi {userName}!</h2>
-                                    <p className="text-gray-700">
-                                        {userName}, what's the <strong>one thing</strong> you want to plan for today?
-                                    </p>
-                                    <div className="space-y-2">
-                                        <Input
-                                            value={planningGoal}
-                                            onChange={(e) => setPlanningGoal(e.target.value)}
-                                            className="w-full"
-                                            placeholder="e.g., Plan my practice revenue for next quarter"
-                                            onKeyDown={handleGoalKeyDown}
-                                        />
-                                        <Button
-                                            className="w-full"
-                                            onClick={() => setIsEditingWelcome(false)}
-                                            disabled={!planningGoal.trim()}
-                                        >
-                                            Let's Get Started
+                                            Get Started
                                         </Button>
                                     </div>
                                 </div>
                             ) : (
-                                // Display Goal Section
-                                <div className="space-y-4">
-                                    <h2 className="font-medium text-lg">Hi {userName}!</h2>
-                                    <div className="space-y-2">
-                                        <p className="text-gray-700">Let's plan to help you meet your goal:</p>
-                                        <p className="font-medium text-gray-900 pl-4 border-l-4 border-gray-500">
-                                            "{planningGoal}"
-                                        </p>
+                                <div className="space-y-5">
+                                    {planningGoal && (
+                                        <div className="flex items-start gap-3 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 mt-1"><path d="m9 12 2 2 4-4"></path><path d="M12 3c-1.2 0-2.4.6-3 1.7A3.6 3.6 0 0 0 4.6 9c-1 .6-1.7 1.8-1.7 3a3.5 3.5 0 0 0 3.5 3.5H19a3 3 0 0 0 3-3c0-1.1-.6-2.1-1.5-2.5-.1-2.3-2-4.2-4.3-4.3A5 5 0 0 0 12 3z"></path></svg>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900">Your Goal</h3>
+                                                <p className="text-gray-800">{planningGoal}</p>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="ml-auto"
+                                                onClick={() => setIsEditingWelcome(true)}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path></svg>
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                                        <h3 className="font-medium text-gray-900 mb-3">Quick Guide</h3>
+                                        <ol className="space-y-2 text-gray-700 list-decimal pl-5">
+                                            <li>Add your service types using the <strong>Add Service</strong> button</li>
+                                            <li>Adjust rates and session counts with the sliders</li>
+                                            <li>Set up to 3 specific goals in the <strong>Target Setting</strong> section</li>
+                                            <li>View your monthly summary and projected values</li>
+                                            <li>Explore charts for deeper insights into your practice metrics</li>
+                                        </ol>
+                                    </div>
+
+                                    {!isEditingWelcome && !planningGoal && (
                                         <Button
                                             variant="outline"
                                             size="sm"
                                             onClick={() => setIsEditingWelcome(true)}
                                             className="mt-2"
                                         >
-                                            Edit Goal
+                                            Add a Goal
                                         </Button>
-                                    </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -771,132 +793,116 @@ const TherapyCalculator = () => {
                 </CardContent>
             </Card>
 
-            {hasEnteredName && !isEditingWelcome && (
-                <Card>
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <h3 className="text-lg font-semibold">Target Setting</h3>
-                                {showGoalCard && goalMetrics.length < 3 && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => {
-                                            setActiveSlot(goalMetrics.length);
-                                            setSelectedMetric(null);
-                                            setTargetValue('');
-                                        }}
-                                    >
-                                        Add Goal
-                                    </Button>
-                                )}
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowGoalCard(!showGoalCard)}
-                                className="flex items-center gap-1"
-                            >
-                                {showGoalCard ? (
-                                    <>
-                                        Hide
-                                        <ChevronUp size={16} />
-                                    </>
-                                ) : (
-                                    <>
-                                        Show
-                                        <ChevronDown size={16} />
-                                    </>
-                                )}
-                            </Button>
+            <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-semibold">Target Setting</h3>
+                            {showGoalCard && goalMetrics.length < 3 && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        setActiveSlot(goalMetrics.length);
+                                        setSelectedMetric(null);
+                                        setTargetValue('');
+                                    }}
+                                >
+                                    Add Goal
+                                </Button>
+                            )}
                         </div>
-                    </CardHeader>
-                    {showGoalCard && (
-                        <CardContent>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowGoalCard(!showGoalCard)}
+                            className="flex items-center gap-1"
+                        >
+                            {showGoalCard ? (
+                                <>
+                                    Hide
+                                    <ChevronUp size={16} />
+                                </>
+                            ) : (
+                                <>
+                                    Show
+                                    <ChevronDown size={16} />
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </CardHeader>
+                {showGoalCard && (
+                    <CardContent>
+                        <div className="space-y-4">
                             <div className="space-y-4">
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center">
-                                            <Label>Select up to 3 metrics to track</Label>
-                                            {goalMetrics.length < 3 && (
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => {
-                                                        setActiveSlot(goalMetrics.length);
-                                                        setSelectedMetric(null);
-                                                        setTargetValue('');
-                                                    }}
-                                                >
-                                                    Add Goal
-                                                </Button>
-                                            )}
-                                        </div>
-                                        <div className="space-y-4">
-                                            {goalMetrics.map((metric, index) => (
-                                                <div key={index} className="w-full">
-                                                    <div className="flex items-center justify-between">
-                                                        <div>
-                                                            <div className="text-sm text-gray-600">{METRIC_LABELS[metric.type]}:</div>
-                                                            <div className="text-lg font-bold flex items-center gap-2">
-                                                                {formatMetricValue(metric.type, metric.target)}
-                                                                <span className={metric.target >= getCurrentMetricValue(metric.type) ? 'text-green-600' : 'text-red-600'}>
-                                                                    {' '}({metric.target >= getCurrentMetricValue(metric.type) ? '+' : ''}{formatMetricValue(metric.type, metric.target - getCurrentMetricValue(metric.type))})
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-1 sm:gap-2">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={() => handleEditMetric(index)}
-                                                                className="h-8 w-8 sm:h-9 sm:w-9"
-                                                                title="Edit Goal"
-                                                            >
-                                                                <Edit2 size={14} className="sm:size-4" />
-                                                            </Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={() => handleDeleteMetric(index)}
-                                                                className="h-8 w-8 sm:h-9 sm:w-9 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                                title="Delete Goal"
-                                                            >
-                                                                <Trash2 size={14} className="sm:size-4" />
-                                                            </Button>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <Label>Select up to 3 metrics to track</Label>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {goalMetrics.map((metric, index) => (
+                                            <div key={index} className="w-full">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <div className="text-sm text-gray-600">{METRIC_LABELS[metric.type]}:</div>
+                                                        <div className="text-lg font-bold flex items-center gap-2">
+                                                            {formatMetricValue(metric.type, metric.target)}
                                                         </div>
                                                     </div>
+                                                    <div className="flex items-center gap-1 sm:gap-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => handleEditMetric(index)}
+                                                            className="h-8 w-8 sm:h-9 sm:w-9"
+                                                            title="Edit Goal"
+                                                        >
+                                                            <Edit2 size={14} className="sm:size-4" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => handleDeleteMetric(index)}
+                                                            className="h-8 w-8 sm:h-9 sm:w-9 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                            title="Delete Goal"
+                                                        >
+                                                            <Trash2 size={14} className="sm:size-4" />
+                                                        </Button>
+                                                    </div>
                                                 </div>
-                                            ))}
-                                            {activeSlot !== null && (
-                                                <div className="space-y-2">
-                                                    <Select
-                                                        value={selectedMetric || ''}
-                                                        onValueChange={(value) => handleMetricSelect(value as keyof typeof METRIC_LABELS, activeSlot)}
-                                                        disabled={editingMetricIndex !== null}
-                                                    >
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select metric" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {Object.entries(METRIC_LABELS)
-                                                                .filter(([key]) => {
-                                                                    // If editing, allow selecting the current metric
-                                                                    if (editingMetricIndex !== null) {
-                                                                        const currentMetric = goalMetrics[editingMetricIndex].type;
-                                                                        return key === currentMetric || !goalMetrics.some(m => m.type === key);
-                                                                    }
-                                                                    // When adding new metric, filter out already selected metrics
-                                                                    return !goalMetrics.some(m => m.type === key);
-                                                                })
-                                                                .map(([key, label]) => (
-                                                                    <SelectItem key={key} value={key}>
-                                                                        {label}
-                                                                    </SelectItem>
-                                                                ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {selectedMetric && (
+                                            </div>
+                                        ))}
+                                        {activeSlot !== null && (
+                                            <div className="space-y-2">
+                                                <Select
+                                                    value={selectedMetric || ''}
+                                                    onValueChange={(value) => handleMetricSelect(value as keyof typeof METRIC_LABELS, activeSlot)}
+                                                    disabled={editingMetricIndex !== null}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select metric" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {Object.entries(METRIC_LABELS)
+                                                            .filter(([key]) => {
+                                                                // If editing, allow selecting the current metric
+                                                                if (editingMetricIndex !== null) {
+                                                                    const currentMetric = goalMetrics[editingMetricIndex].type;
+                                                                    return key === currentMetric || !goalMetrics.some(m => m.type === key);
+                                                                }
+                                                                // When adding new metric, filter out already selected metrics
+                                                                return !goalMetrics.some(m => m.type === key);
+                                                            })
+                                                            .map(([key, label]) => (
+                                                                <SelectItem key={key} value={key}>
+                                                                    {label}
+                                                                </SelectItem>
+                                                            ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                {selectedMetric && (
+                                                    <div className="space-y-2">
                                                         <div className="flex gap-2">
                                                             <Input
                                                                 type="number"
@@ -904,6 +910,28 @@ const TherapyCalculator = () => {
                                                                 onChange={(e) => setTargetValue(e.target.value)}
                                                                 className="flex-1"
                                                             />
+                                                            <Select
+                                                                value={editingMetricIndex !== null ? goalMetrics[editingMetricIndex].comparison : 'atLeast'}
+                                                                onValueChange={(value) => {
+                                                                    if (editingMetricIndex !== null) {
+                                                                        setGoalMetrics(goalMetrics.map((metric, index) =>
+                                                                            index === editingMetricIndex
+                                                                                ? { ...metric, comparison: value as 'atLeast' | 'noMoreThan' }
+                                                                                : metric
+                                                                        ));
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <SelectTrigger className="w-[140px]">
+                                                                    <SelectValue placeholder="Select comparison" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="atLeast">At least</SelectItem>
+                                                                    <SelectItem value="noMoreThan">No more than</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </div>
+                                                        <div className="flex gap-2">
                                                             <Button
                                                                 onClick={handleSaveMetric}
                                                                 disabled={!targetValue}
@@ -917,17 +945,17 @@ const TherapyCalculator = () => {
                                                                 Cancel
                                                             </Button>
                                                         </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-                        </CardContent>
-                    )}
-                </Card>
-            )}
+                        </div>
+                    </CardContent>
+                )}
+            </Card>
 
             <Card>
                 <CardHeader>
@@ -958,8 +986,11 @@ const TherapyCalculator = () => {
                         <div>
                             <div className="text-sm text-gray-600">Monthly Revenue
                                 {goalMetrics.find(m => m.type === 'revenue') && (
-                                    <span className={calculateRevenue() >= goalMetrics.find(m => m.type === 'revenue')!.target ? 'text-green-600' : 'text-red-600'}>
-                                        {' '}(Goal: ${goalMetrics.find(m => m.type === 'revenue')!.target.toLocaleString()})
+                                    <span className={goalMetrics.find(m => m.type === 'revenue')!.comparison === 'atLeast'
+                                        ? (calculateRevenue() >= goalMetrics.find(m => m.type === 'revenue')!.target ? 'text-green-600' : 'text-red-600')
+                                        : (calculateRevenue() <= goalMetrics.find(m => m.type === 'revenue')!.target ? 'text-green-600' : 'text-red-600')
+                                    }>
+                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'revenue')!.comparison === 'atLeast' ? '≥' : '≤'} ${goalMetrics.find(m => m.type === 'revenue')!.target.toLocaleString()})
                                     </span>
                                 )}</div>
                             <div className="text-xl font-bold flex items-center gap-2">
@@ -970,8 +1001,11 @@ const TherapyCalculator = () => {
                         <div>
                             <div className="text-sm text-gray-600">Total Monthly Visits
                                 {goalMetrics.find(m => m.type === 'visits') && (
-                                    <span className={calculateTotalVisits(rows) >= goalMetrics.find(m => m.type === 'visits')!.target ? 'text-green-600' : 'text-red-600'}>
-                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'visits')!.target.toLocaleString()})
+                                    <span className={goalMetrics.find(m => m.type === 'visits')!.comparison === 'atLeast'
+                                        ? (calculateTotalVisits(rows) >= goalMetrics.find(m => m.type === 'visits')!.target ? 'text-green-600' : 'text-red-600')
+                                        : (calculateTotalVisits(rows) <= goalMetrics.find(m => m.type === 'visits')!.target ? 'text-green-600' : 'text-red-600')
+                                    }>
+                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'visits')!.comparison === 'atLeast' ? '≥' : '≤'} {goalMetrics.find(m => m.type === 'visits')!.target.toLocaleString()})
                                     </span>
                                 )}
                             </div>
@@ -986,8 +1020,11 @@ const TherapyCalculator = () => {
                         <div>
                             <div className="text-sm text-gray-600">Blended Rate
                                 {goalMetrics.find(m => m.type === 'blendedRate') && (
-                                    <span className={calculateBlendedRate() >= goalMetrics.find(m => m.type === 'blendedRate')!.target ? 'text-green-600' : 'text-red-600'}>
-                                        {' '}(Goal: ${goalMetrics.find(m => m.type === 'blendedRate')!.target.toFixed(2)})
+                                    <span className={goalMetrics.find(m => m.type === 'blendedRate')!.comparison === 'atLeast'
+                                        ? (calculateBlendedRate() >= goalMetrics.find(m => m.type === 'blendedRate')!.target ? 'text-green-600' : 'text-red-600')
+                                        : (calculateBlendedRate() <= goalMetrics.find(m => m.type === 'blendedRate')!.target ? 'text-green-600' : 'text-red-600')
+                                    }>
+                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'blendedRate')!.comparison === 'atLeast' ? '≥' : '≤'} ${goalMetrics.find(m => m.type === 'blendedRate')!.target.toFixed(2)})
                                     </span>
                                 )}
                             </div>
@@ -1005,8 +1042,11 @@ const TherapyCalculator = () => {
                         <div>
                             <div className="text-sm text-gray-600">Therapy Hours
                                 {goalMetrics.find(m => m.type === 'therapyHours') && (
-                                    <span className={calculateHours().therapy >= goalMetrics.find(m => m.type === 'therapyHours')!.target ? 'text-green-600' : 'text-red-600'}>
-                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'therapyHours')!.target.toFixed(1)})
+                                    <span className={goalMetrics.find(m => m.type === 'therapyHours')!.comparison === 'atLeast'
+                                        ? (calculateHours().therapy >= goalMetrics.find(m => m.type === 'therapyHours')!.target ? 'text-green-600' : 'text-red-600')
+                                        : (calculateHours().therapy <= goalMetrics.find(m => m.type === 'therapyHours')!.target ? 'text-green-600' : 'text-red-600')
+                                    }>
+                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'therapyHours')!.comparison === 'atLeast' ? '≥' : '≤'} {goalMetrics.find(m => m.type === 'therapyHours')!.target.toFixed(1)})
                                     </span>
                                 )}
                             </div>
@@ -1021,8 +1061,11 @@ const TherapyCalculator = () => {
                         <div>
                             <div className="text-sm text-gray-600">Admin Hours
                                 {goalMetrics.find(m => m.type === 'adminHours') && (
-                                    <span className={calculateHours().admin >= goalMetrics.find(m => m.type === 'adminHours')!.target ? 'text-green-600' : 'text-red-600'}>
-                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'adminHours')!.target.toFixed(1)})
+                                    <span className={goalMetrics.find(m => m.type === 'adminHours')!.comparison === 'atLeast'
+                                        ? (calculateHours().admin >= goalMetrics.find(m => m.type === 'adminHours')!.target ? 'text-green-600' : 'text-red-600')
+                                        : (calculateHours().admin <= goalMetrics.find(m => m.type === 'adminHours')!.target ? 'text-green-600' : 'text-red-600')
+                                    }>
+                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'adminHours')!.comparison === 'atLeast' ? '≥' : '≤'} {goalMetrics.find(m => m.type === 'adminHours')!.target.toFixed(1)})
                                     </span>
                                 )}
                             </div>
@@ -1037,8 +1080,11 @@ const TherapyCalculator = () => {
                         <div>
                             <div className="text-sm text-gray-600">Total Hours
                                 {goalMetrics.find(m => m.type === 'totalHours') && (
-                                    <span className={calculateHours().total >= goalMetrics.find(m => m.type === 'totalHours')!.target ? 'text-green-600' : 'text-red-600'}>
-                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'totalHours')!.target.toFixed(1)})
+                                    <span className={goalMetrics.find(m => m.type === 'totalHours')!.comparison === 'atLeast'
+                                        ? (calculateHours().total >= goalMetrics.find(m => m.type === 'totalHours')!.target ? 'text-green-600' : 'text-red-600')
+                                        : (calculateHours().total <= goalMetrics.find(m => m.type === 'totalHours')!.target ? 'text-green-600' : 'text-red-600')
+                                    }>
+                                        {' '}(Goal: {goalMetrics.find(m => m.type === 'totalHours')!.comparison === 'atLeast' ? '≥' : '≤'} {goalMetrics.find(m => m.type === 'totalHours')!.target.toFixed(1)})
                                     </span>
                                 )}
                             </div>
