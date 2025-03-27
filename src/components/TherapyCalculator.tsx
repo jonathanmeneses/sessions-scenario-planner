@@ -395,8 +395,8 @@ const TherapyCalculator = () => {
                                 <div className="space-y-4">
                                     <h2 className="font-medium text-lg">Hi {userName}!</h2>
                                     <div className="space-y-2">
-                                        <p className="text-gray-700">Let's achieve your goal:</p>
-                                        <p className="font-medium text-gray-900 pl-4 border-l-4 border-blue-500">
+                                        <p className="text-gray-700">Let's plan to help you meet your goal:</p>
+                                        <p className="font-medium text-gray-900 pl-4 border-l-4 border-gray-500">
                                             "{planningGoal}"
                                         </p>
 
