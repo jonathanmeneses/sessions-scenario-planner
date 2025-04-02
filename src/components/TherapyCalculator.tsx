@@ -482,41 +482,43 @@ const TherapyCalculator = () => {
                                 </div>
                             ) : (
                                 <div className="space-y-5">
-                                    {planningGoal && (
-                                        <div className="flex items-start gap-3 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-
-                                            <div>
-                                                <h3 className="font-semibold text-gray-900">Your Goal</h3>
-                                                <p className="text-gray-800">{planningGoal}</p>
+                                    <div className="flex flex-col sm:flex-row gap-4 items-center">
+                                        <div className="w-full sm:w-auto flex-1">
+                                            <div className="flex items-center gap-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                                <div>
+                                                    <h3 className="font-semibold text-gray-900">Your Name</h3>
+                                                    <p className="text-gray-800">{userName}</p>
+                                                </div>
                                             </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="ml-auto"
-                                                onClick={() => setIsEditingWelcome(true)}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path></svg>
-                                            </Button>
                                         </div>
-                                    )}
-
-                                    {!isEditingWelcome && !planningGoal && (
+                                        <div className="w-full sm:w-auto flex-1">
+                                            <div className="flex items-center gap-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600"><path d="m9 12 2 2 4-4"></path><path d="M12 3c-1.2 0-2.4.6-3 1.7A3.6 3.6 0 0 0 4.6 9c-1 .6-1.7 1.8-1.7 3a3.5 3.5 0 0 0 3.5 3.5H19a3 3 0 0 0 3-3c0-1.1-.6-2.1-1.5-2.5-.1-2.3-2-4.2-4.3-4.3A5 5 0 0 0 12 3z"></path></svg>
+                                                <div>
+                                                    <h3 className="font-semibold text-gray-900">Your Goal</h3>
+                                                    <p className="text-gray-800">{planningGoal || 'No goal set'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <Button
-                                            variant="outline"
+                                            variant="ghost"
                                             size="sm"
-                                            onClick={() => setIsEditingWelcome(true)}
-                                            className="mt-2"
+                                            className="ml-auto"
+                                            onClick={() => {
+                                                setIsEditingWelcome(true);
+                                                setHasEnteredName(false);
+                                            }}
                                         >
-                                            Add a Goal
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path></svg>
                                         </Button>
-                                    )}
+                                    </div>
                                 </div>
                             )}
                         </div>
                     </CardContent>
                 )}
             </Card>
-
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
@@ -824,22 +826,7 @@ const TherapyCalculator = () => {
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold">Target Setting</h3>
-                            {showGoalCard && goalMetrics.length < 3 && (
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                        setActiveSlot(goalMetrics.length);
-                                        setSelectedMetric(null);
-                                        setTargetValue('');
-                                    }}
-                                >
-                                    Add Goal
-                                </Button>
-                            )}
-                        </div>
+                        <h3 className="text-lg font-semibold">Target Setting</h3>
                         <Button
                             variant="ghost"
                             size="sm"
