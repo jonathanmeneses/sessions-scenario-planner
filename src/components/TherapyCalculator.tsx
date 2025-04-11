@@ -727,7 +727,7 @@ const TherapyCalculator = () => {
                                         <Slider
                                             value={[row.adjustedRate]}
                                             min={0}
-                                            max={400}
+                                            max={Math.max(400, row.baseRate * 2)}
                                             step={5}
                                             onValueChange={(value) => handleRateChange(row.id, value)}
                                             className="my-2"
@@ -742,7 +742,7 @@ const TherapyCalculator = () => {
                                         <Slider
                                             value={[row.adjustedSessions]}
                                             min={0}
-                                            max={40}
+                                            max={Math.min(120, row.baseSessions * 3)}
                                             step={1}
                                             onValueChange={(value) => handleSessionChange(row.id, value)}
                                             className="my-2"
@@ -779,7 +779,7 @@ const TherapyCalculator = () => {
                                                 <Slider
                                                     value={[row.adjustedRate]}
                                                     min={0}
-                                                    max={400}
+                                                    max={Math.max(400, row.baseRate * 2)}
                                                     step={5}
                                                     onValueChange={(value) => handleRateChange(row.id, value)}
                                                 />
@@ -794,7 +794,7 @@ const TherapyCalculator = () => {
                                                 <Slider
                                                     value={[row.adjustedSessions]}
                                                     min={0}
-                                                    max={40}
+                                                    max={Math.min(120, row.baseSessions * 3)}
                                                     step={1}
                                                     onValueChange={(value) => handleSessionChange(row.id, value)}
                                                 />
