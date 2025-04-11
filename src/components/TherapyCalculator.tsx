@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -124,6 +124,9 @@ const TherapyCalculator = () => {
     const [showGoalCard, setShowGoalCard] = useState(true);
     const [showWelcomeCard, setShowWelcomeCard] = useState(true);
     const [showPersonalCard, setShowPersonalCard] = useState(true);
+
+    const [rateRanges, setRateRanges] = useState<Record<number, number>>({});
+    const [sessionRanges, setSessionRanges] = useState<Record<number, number>>({});
 
     const handleAddPayer = () => {
         if (newPayer.trim()) {
@@ -417,6 +420,44 @@ const TherapyCalculator = () => {
         setEditingMetricIndex(null);
         setActiveSlot(null);
     };
+
+    const handleRateInputChange = (rowId: number, value: string) => {
+        const numValue = parseFloat(value) || 0;
+        setRows(rows.map(row =>
+            row.id === rowId ? { ...row, adjustedRate: numValue } : row
+        ));
+        // Update the range for this specific row
+        setRateRanges(prev => ({
+            ...prev,
+            [rowId]: Math.max(400, numValue * 2)
+        }));
+    };
+
+    const handleSessionInputChange = (rowId: number, value: string) => {
+        const numValue = parseInt(value) || 0;
+        setRows(rows.map(row =>
+            row.id === rowId ? { ...row, adjustedSessions: numValue } : row
+        ));
+        // Update the range for this specific row
+        setSessionRanges(prev => ({
+            ...prev,
+            [rowId]: Math.min(120, numValue * 3)
+        }));
+    };
+
+    // Initialize ranges when component mounts or rows change
+    useEffect(() => {
+        const initialRateRanges: Record<number, number> = {};
+        const initialSessionRanges: Record<number, number> = {};
+
+        rows.forEach(row => {
+            initialRateRanges[row.id] = Math.max(400, row.baseRate * 2);
+            initialSessionRanges[row.id] = Math.min(120, row.baseSessions * 3);
+        });
+
+        setRateRanges(initialRateRanges);
+        setSessionRanges(initialSessionRanges);
+    }, []); // Only run once on mount
 
     return (
         <div className="w-full max-w-4xl mx-auto p-4 space-y-4">
@@ -724,33 +765,49 @@ const TherapyCalculator = () => {
                                 <div className="space-y-4">
                                     <div>
                                         <label className="text-sm text-gray-600">Rate ($)</label>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Input
+                                                type="number"
+                                                value={row.adjustedRate}
+                                                onChange={(e) => handleRateInputChange(row.id, e.target.value)}
+                                                className="w-24 no-spinners"
+                                                min={0}
+                                            />
+                                            <span className="text-sm text-gray-600">
+                                                {formatChange(row.adjustedRate, row.baseRate)}
+                                            </span>
+                                        </div>
                                         <Slider
                                             value={[row.adjustedRate]}
                                             min={0}
-                                            max={Math.max(400, row.baseRate * 2)}
+                                            max={rateRanges[row.id] || Math.max(400, row.baseRate * 2)}
                                             step={5}
                                             onValueChange={(value) => handleRateChange(row.id, value)}
                                             className="my-2"
                                         />
-                                        <div className="text-sm flex items-center gap-2">
-                                            ${row.adjustedRate}
-                                            {formatChange(row.adjustedRate, row.baseRate)}
-                                        </div>
                                     </div>
                                     <div>
                                         <label className="text-sm text-gray-600">Sessions/Month</label>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Input
+                                                type="number"
+                                                value={row.adjustedSessions}
+                                                onChange={(e) => handleSessionInputChange(row.id, e.target.value)}
+                                                className="w-24 no-spinners"
+                                                min={0}
+                                            />
+                                            <span className="text-sm text-gray-600">
+                                                {formatChange(row.adjustedSessions, row.baseSessions)}
+                                            </span>
+                                        </div>
                                         <Slider
                                             value={[row.adjustedSessions]}
                                             min={0}
-                                            max={Math.min(120, row.baseSessions * 3)}
+                                            max={sessionRanges[row.id] || Math.min(120, row.baseSessions * 3)}
                                             step={1}
                                             onValueChange={(value) => handleSessionChange(row.id, value)}
                                             className="my-2"
                                         />
-                                        <div className="text-sm flex items-center gap-2">
-                                            {row.adjustedSessions}
-                                            {formatChange(row.adjustedSessions, row.baseSessions)}
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -776,32 +833,48 @@ const TherapyCalculator = () => {
                                         <td className="p-2">{row.payer}</td>
                                         <td className="p-2">
                                             <div className="w-32">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Input
+                                                        type="number"
+                                                        value={row.adjustedRate}
+                                                        onChange={(e) => handleRateInputChange(row.id, e.target.value)}
+                                                        className="w-24 no-spinners"
+                                                        min={0}
+                                                    />
+                                                    <span className="text-sm text-gray-600">
+                                                        {formatChange(row.adjustedRate, row.baseRate)}
+                                                    </span>
+                                                </div>
                                                 <Slider
                                                     value={[row.adjustedRate]}
                                                     min={0}
-                                                    max={Math.max(400, row.baseRate * 2)}
+                                                    max={rateRanges[row.id] || Math.max(400, row.baseRate * 2)}
                                                     step={5}
                                                     onValueChange={(value) => handleRateChange(row.id, value)}
                                                 />
-                                                <div className="text-sm mt-1 flex items-center gap-2">
-                                                    ${row.adjustedRate}
-                                                    {formatChange(row.adjustedRate, row.baseRate)}
-                                                </div>
                                             </div>
                                         </td>
                                         <td className="p-2">
                                             <div className="w-32">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Input
+                                                        type="number"
+                                                        value={row.adjustedSessions}
+                                                        onChange={(e) => handleSessionInputChange(row.id, e.target.value)}
+                                                        className="w-24 no-spinners"
+                                                        min={0}
+                                                    />
+                                                    <span className="text-sm text-gray-600">
+                                                        {formatChange(row.adjustedSessions, row.baseSessions)}
+                                                    </span>
+                                                </div>
                                                 <Slider
                                                     value={[row.adjustedSessions]}
                                                     min={0}
-                                                    max={Math.min(120, row.baseSessions * 3)}
+                                                    max={sessionRanges[row.id] || Math.min(120, row.baseSessions * 3)}
                                                     step={1}
                                                     onValueChange={(value) => handleSessionChange(row.id, value)}
                                                 />
-                                                <div className="text-sm mt-1 flex items-center gap-2">
-                                                    {row.adjustedSessions}
-                                                    {formatChange(row.adjustedSessions, row.baseSessions)}
-                                                </div>
                                             </div>
                                         </td>
                                         <td className="p-2">
@@ -833,22 +906,7 @@ const TherapyCalculator = () => {
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold">Target Setting</h3>
-                            {showGoalCard && goalMetrics.length < 3 && (
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                        setActiveSlot(goalMetrics.length);
-                                        setSelectedMetric(null);
-                                        setTargetValue('');
-                                    }}
-                                >
-                                    Add Goal
-                                </Button>
-                            )}
-                        </div>
+                        <h3 className="text-lg font-semibold">Target Setting</h3>
                         <Button
                             variant="ghost"
                             size="sm"
