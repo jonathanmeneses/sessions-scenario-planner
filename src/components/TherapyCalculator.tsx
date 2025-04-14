@@ -906,7 +906,22 @@ const TherapyCalculator = () => {
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-semibold">Target Setting</h3>
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-semibold">Target Setting</h3>
+                            {showGoalCard && goalMetrics.length < 3 && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        setActiveSlot(goalMetrics.length);
+                                        setSelectedMetric(null);
+                                        setTargetValue('');
+                                    }}
+                                >
+                                    Add Goal
+                                </Button>
+                            )}
+                        </div>
                         <Button
                             variant="ghost"
                             size="sm"
