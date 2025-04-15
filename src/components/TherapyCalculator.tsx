@@ -441,7 +441,7 @@ const TherapyCalculator = () => {
         // Update the range for this specific row
         setSessionRanges(prev => ({
             ...prev,
-            [rowId]: Math.min(120, numValue * 3)
+            [rowId]: Math.max(60, numValue * 2)
         }));
     };
 
@@ -452,7 +452,7 @@ const TherapyCalculator = () => {
 
         rows.forEach(row => {
             initialRateRanges[row.id] = Math.max(400, row.baseRate * 2);
-            initialSessionRanges[row.id] = Math.min(120, row.baseSessions * 3);
+            initialSessionRanges[row.id] = Math.max(60, row.baseSessions * 2);
         });
 
         setRateRanges(initialRateRanges);
