@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Therapy Practice Calculator',
-  description: 'A tool to help therapists scenario plan their practice revenue and hours',
+  description:
+    'A tool to help therapists scenario plan their practice revenue and hours',
 };
 
 export default function RootLayout({

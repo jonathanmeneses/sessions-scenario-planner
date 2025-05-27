@@ -1,11 +1,13 @@
 .income-calculator-widget {
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   padding: 24px;
   max-width: 480px;
   margin: 32px auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
   color: #333;
 }
 .header-row {
@@ -17,17 +19,17 @@
 .title {
   font-size: 20px;
   font-weight: 600;
-  color: #2A3B47;
+  color: #2a3b47;
 }
 .advanced-link {
   font-size: 14px;
-  color: #4A5568;
+  color: #4a5568;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
 }
 .advanced-link:hover {
-  color: #2A3B47;
+  color: #2a3b47;
 }
 .external-link-icon {
   margin-left: 4px;
@@ -40,24 +42,26 @@
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: #4A5568;
+  color: #4a5568;
   margin-bottom: 6px;
 }
-.input-group input[type="number"],
+.input-group input[type='number'],
 .input-group select {
   width: 100%;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #D1D5DB;
+  border: 1px solid #d1d5db;
   font-size: 14px;
-  background-color: #F9FAFB;
+  background-color: #f9fafb;
   box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
-.input-group input[type="number"]:focus,
+.input-group input[type='number']:focus,
 .input-group select:focus {
   outline: none;
-  border-color: #60A5FA;
+  border-color: #60a5fa;
   box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
 }
 .input-slider-wrapper {
@@ -68,7 +72,7 @@
 .range-slider {
   width: 100%;
   margin-top: 4px;
-  accent-color: #3B82F6;
+  accent-color: #3b82f6;
   background: transparent;
   height: 8px;
   -webkit-appearance: none;
@@ -78,44 +82,44 @@
   appearance: none;
   width: 18px;
   height: 18px;
-  background: #3B82F6;
+  background: #3b82f6;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 .range-slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: #3B82F6;
+  background: #3b82f6;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 .range-slider::-webkit-slider-runnable-track {
   width: 100%;
   height: 6px;
   cursor: pointer;
-  background: #E5E7EB;
+  background: #e5e7eb;
   border-radius: 3px;
 }
 .range-slider::-moz-range-track {
   width: 100%;
   height: 6px;
   cursor: pointer;
-  background: #E5E7EB;
+  background: #e5e7eb;
   border-radius: 3px;
 }
 .income-list {
   margin-bottom: 20px;
 }
 .income-item {
-  background: #F9FAFB;
+  background: #f9fafb;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #e5e7eb;
 }
 .income-header {
   display: flex;
@@ -131,18 +135,18 @@
   padding: 4px 0;
   margin-right: 8px;
   flex-grow: 1;
-  color: #2A3B47;
+  color: #2a3b47;
 }
 .income-label-input:focus {
   outline: none;
-  border-bottom: 1px solid #60A5FA;
+  border-bottom: 1px solid #60a5fa;
 }
 .income-type-select {
   font-size: 14px;
-  border: 1px solid #D1D5DB;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
   padding: 6px 10px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   margin-right: 8px;
   width: auto;
 }
@@ -151,13 +155,13 @@
   border: none;
   cursor: pointer;
   font-size: 18px;
-  color: #EF4444;
+  color: #ef4444;
   opacity: 0.8;
   padding: 4px;
 }
 .remove-btn:hover {
   opacity: 1;
-  color: #DC2626;
+  color: #dc2626;
 }
 .income-fields {
   display: grid;
@@ -174,39 +178,41 @@
   font-weight: 500;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    box-shadow 0.2s;
   border: none;
 }
 .add-income-row {
   margin-bottom: 20px;
 }
 .action-button.primary {
-  background-color: #2563EB;
+  background-color: #2563eb;
   color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 .action-button.primary:hover {
-  background-color: #1D4ED8;
+  background-color: #1d4ed8;
 }
 .action-button.secondary {
-  background-color: #E5E7EB;
+  background-color: #e5e7eb;
   color: #374151;
 }
 .action-button.secondary:hover {
-  background-color: #D1D5DB;
+  background-color: #d1d5db;
 }
 .add-income-btn {
-  background-color: #F3F4F6;
+  background-color: #f3f4f6;
   color: #374151;
-  border: 1px dashed #D1D5DB;
+  border: 1px dashed #d1d5db;
 }
 .add-income-btn:hover {
-  background-color: #E5E7EB;
-  border-color: #9CA3AF;
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
 }
 .projected-income-box {
-  background-color: #FDFBF6;
-  border: 1px solid #F3EADA;
+  background-color: #fdfbf6;
+  border: 1px solid #f3eada;
   border-radius: 12px;
   padding: 20px;
   margin-top: 24px;
@@ -220,10 +226,10 @@
 .projected-income-title {
   font-size: 16px;
   font-weight: 500;
-  color: #4A5568;
+  color: #4a5568;
 }
 .info-icon {
-  background: #E5E7EB;
+  background: #e5e7eb;
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -231,7 +237,7 @@
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  color: #4A5568;
+  color: #4a5568;
   cursor: help;
 }
 .projected-income-value {
@@ -243,7 +249,7 @@
 .projected-income-value .amount {
   font-size: 30px;
   font-weight: 600;
-  color: #2A3B47;
+  color: #2a3b47;
 }
 .percent-badge {
   font-size: 13px;
@@ -252,12 +258,12 @@
   padding: 3px 8px;
 }
 .percent-badge.positive {
-  background-color: #D1FAE5;
-  color: #065F46;
+  background-color: #d1fae5;
+  color: #065f46;
 }
 .percent-badge.negative {
-  background-color: #FEE2E2;
-  color: #991B1B;
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 .footer-actions {
   display: flex;
@@ -267,19 +273,19 @@
   flex: 1;
 }
 .empty-state {
-  color: #6B7280;
+  color: #6b7280;
   text-align: center;
   padding: 32px 0;
   font-size: 15px;
-  border: 1px dashed #D1D5DB;
+  border: 1px dashed #d1d5db;
   border-radius: 8px;
-  background-color: #F9FAFB;
+  background-color: #f9fafb;
 }
 .weeks-off-row label {
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: #4A5568;
+  color: #4a5568;
   margin-bottom: 6px;
 }
 .weeks-off-input {
@@ -306,7 +312,8 @@
 .action-row {
   /* Replaced by .footer-actions */
 }
-.clear-btn, .update-goal-btn {
+.clear-btn,
+.update-goal-btn {
   /* Replaced by .action-button.secondary/primary */
 }
 .income-goal-card {
@@ -322,8 +329,8 @@
 .clear-goal-btn {
   background: none;
   border: none;
-  color: #2563EB;
+  color: #2563eb;
   cursor: pointer;
   font-weight: 500;
   font-size: 14px;
-} 
+}

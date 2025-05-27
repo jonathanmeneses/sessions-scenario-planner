@@ -73,12 +73,14 @@ body {
   }
 }
 
-.no-spinners::-webkit-inner-spin-button,
-.no-spinners::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+@layer utilities {
+  .no-spinners::-webkit-inner-spin-button,
+  .no-spinners::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 
-.no-spinners {
-  -moz-appearance: textfield;
+  .no-spinners {
+    -moz-appearance: textfield;
+  }
 }
