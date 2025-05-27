@@ -212,9 +212,9 @@ export default function CalculatorWidget() {
 
   const annualIncome = calculateAnnualIncome(incomes, weeksOff);
   const percent =
-    annualIncome > 100000
-      ? Math.round(((annualIncome - 100000) / 100000) * 100)
-      : 0;
+    incomeGoal && incomeGoal > 0
+      ? Math.round(((annualIncome - incomeGoal) / incomeGoal) * 100)
+      : null;
 
   return (
     <div className={styles['income-calculator-widget']}>
@@ -529,11 +529,11 @@ export default function CalculatorWidget() {
           <span className={styles['amount']}>
             {annualIncome ? `$${annualIncome.toLocaleString()}` : '$0'}
           </span>
-          {annualIncome > 0 && percent !== 0 && (
+          {incomeGoal && incomeGoal > 0 && percent !== 0 && percent !== null && (
             <span
               className={`${styles['percent-badge']} ${percent > 0 ? styles['positive'] : styles['negative']}`}
             >
-              {percent > 0 ? '+' : ''} {percent}%
+              {percent > 0 ? '+' : ''} {percent}% vs. Goal
             </span>
           )}
         </div>
