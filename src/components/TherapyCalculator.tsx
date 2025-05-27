@@ -11,6 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Plus, Trash2, Edit2, ChevronDown, ChevronUp } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useEnterSubmit } from '@/hooks/useEnterSubmit';
+import Link from 'next/link';
 
 // Add this interface near the top of the file, before the component
 interface TherapyRow {
@@ -461,6 +462,12 @@ const TherapyCalculator = () => {
 
     return (
         <div className="w-full max-w-4xl mx-auto p-4 space-y-4">
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Therapy Practice Calculator</h2>
+                <Link href="/simple-widget" className="text-sm text-gray-600 hover:text-blue-700 inline-flex items-center advanced-link">
+                    Simple Income Calculator <span className="ml-1" aria-hidden>↗</span>
+                </Link>
+            </div>
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-start">
