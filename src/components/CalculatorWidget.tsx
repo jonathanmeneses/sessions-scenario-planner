@@ -30,10 +30,8 @@ interface W2Income {
 type Income = ClientIncome | MiscIncome | ConsultingIncome | W2Income;
 
 const INCOME_TYPES = [
-  { value: 'client', label: 'Client Session' },
-  { value: 'misc', label: 'Misc Revenue' },
-  { value: 'consulting', label: 'Hourly Consulting' },
-  { value: 'w2', label: 'W2 Income' },
+  { value: 'client', label: 'Clients/Hourly Rates' },
+  { value: 'misc', label: 'Periodic Income' },
 ] as const;
 
 const defaultIncome: Income = {
@@ -158,20 +156,6 @@ export default function CalculatorWidget() {
               miscAmount: 0,
               miscPeriod: 'month',
             } as MiscIncome;
-          } else if (type === 'consulting') {
-            return {
-              type: 'consulting',
-              label: baseLabel,
-              consultingRate: 0,
-              consultingHours: 0,
-            } as ConsultingIncome;
-          } else if (type === 'w2') {
-            return {
-              type: 'w2',
-              label: baseLabel,
-              w2Amount: 0,
-              w2Start: 'all',
-            } as W2Income;
           }
         }
         return inc;
@@ -403,95 +387,6 @@ export default function CalculatorWidget() {
                       <option value="week">per week</option>
                       <option value="month">per month</option>
                       <option value="year">per year</option>
-                    </select>
-                  </div>
-                </>
-              )}
-              {income.type === 'consulting' && (
-                <>
-                  <div
-                    className={`${styles['field']} ${styles['input-group']}`}
-                  >
-                    <label htmlFor={`consultingRate-${idx}`}>Hourly rate</label>
-                    <input
-                      id={`consultingRate-${idx}`}
-                      type="number"
-                      min={0}
-                      value={(income as ConsultingIncome).consultingRate}
-                      onChange={(e) =>
-                        handleIncomeChange(
-                          idx,
-                          'consultingRate',
-                          Number(e.target.value),
-                        )
-                      }
-                    />
-                  </div>
-                  <div
-                    className={`${styles['field']} ${styles['input-group']}`}
-                  >
-                    <label htmlFor={`consultingHours-${idx}`}>
-                      Hours per month
-                    </label>
-                    <input
-                      id={`consultingHours-${idx}`}
-                      type="number"
-                      min={0}
-                      value={(income as ConsultingIncome).consultingHours}
-                      onChange={(e) =>
-                        handleIncomeChange(
-                          idx,
-                          'consultingHours',
-                          Number(e.target.value),
-                        )
-                      }
-                    />
-                  </div>
-                </>
-              )}
-              {income.type === 'w2' && (
-                <>
-                  <div
-                    className={`${styles['field']} ${styles['input-group']}`}
-                  >
-                    <label htmlFor={`w2Amount-${idx}`}>Annual Salary</label>
-                    <input
-                      id={`w2Amount-${idx}`}
-                      type="number"
-                      min={0}
-                      value={(income as W2Income).w2Amount}
-                      onChange={(e) =>
-                        handleIncomeChange(
-                          idx,
-                          'w2Amount',
-                          Number(e.target.value),
-                        )
-                      }
-                    />
-                  </div>
-                  <div
-                    className={`${styles['field']} ${styles['input-group']}`}
-                  >
-                    <label htmlFor={`w2Start-${idx}`}>Employment Start</label>
-                    <select
-                      id={`w2Start-${idx}`}
-                      value={(income as W2Income).w2Start}
-                      onChange={(e) =>
-                        handleIncomeChange(idx, 'w2Start', e.target.value)
-                      }
-                    >
-                      <option value="all">Full Year</option>
-                      {Array.from({ length: 12 }, (_, monthIndex) => (
-                        <option
-                          key={monthIndex}
-                          value={`2024-${String(monthIndex + 1).padStart(2, '0')}`}
-                        >
-                          {new Date(2024, monthIndex).toLocaleString(
-                            'default',
-                            { month: 'long' },
-                          )}
-                        </option>
-                      ))}
                     </select>
                   </div>
                 </>
